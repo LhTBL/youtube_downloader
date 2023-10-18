@@ -4,6 +4,9 @@ import yt_dlp
 import tkinter as tk
 from PIL import Image, ImageTk
 
+import os
+from tkinter import filedialog
+
 
 
 def download(url):
@@ -12,6 +15,23 @@ def download(url):
         ydl.download([url])
 
     print(f"Downloaded {url}")
+
+def save_path():
+    folder_selected = filedialog.askdirectory()
+    if os.path.exists('specs.ydlbl'):
+        with open('specs.ydlbl', 'r') as f:
+            content = f.read()
+        start = content.find('[OUTPUT]')
+        end = content.find('[ENDOUTPUT]')
+        if start != -1 and end != -1:
+            content = content[:start+8] + folder_selected + content[end:]
+        else:
+            content += '\n[OUTPUT]' + folder_selected + '[ENDOUTPUT]'
+    else:
+        content = '[OUTPUT]' + folder_selected + '[ENDOUTPUT]'
+    with open('specs.ydlbl', 'w') as f:
+        f.write(content)
+    print(f"Path saved: {folder_selected}")
 
 
 
@@ -41,6 +61,9 @@ def run_gui():
     download_button.configure(width=10, relief=FLAT)
     canvas.create_window((610, 655), window=download_button, height=50)
 
+    path_button = tk.Button(root, text="Select Path", font=("Helvetica", 15), bg="#e0e0e0", command=save_path)
+    path_button.configure(width=10, relief=FLAT)
+    canvas.create_window((450, 655), window=path_button, height=50)
 
 
     root.mainloop()
